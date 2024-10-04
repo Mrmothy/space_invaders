@@ -33,7 +33,7 @@ class Game:
 
         #Set sounds and music
         self.new_round_sound = pygame.mixer.Sound(join("Assets", "new_round.wav"))
-        self.new_round_sound.set_volume(.5)
+        self.new_round_sound.set_volume(.35)
         self.breach_sound = pygame.mixer.Sound(join("Assets", "breach.wav"))
         self.breach_sound.set_volume(.25)
         self.alien_hit_sound = pygame.mixer.Sound(join("Assets", "player_hit.wav"))
@@ -77,7 +77,35 @@ class Game:
 
     def shift_aliens(self):
         """Shift a wave of aliens down the screen and reverse the direction"""
-        pass
+        #Determin if alien group has hit edge
+        shift = False
+        for alien in (self.alien_group.sprites()):
+            if alien.rect.left < 0 or alien.rect.right > WINDOW_WIDTH:
+                shift = True
+        
+        #Shift every alien down, change direction, and check for a breach
+        if shift:
+            breach = False
+            for alien in (self.alien_group.sprites()):
+                #Shift down
+                alien.rect.y += 10 * self.round_number
+                
+                #Reverse the direction and move alien off edge so shift does't trigger
+                alien.direction = -1 * alien.direction
+                alien.rect.x += alien.direction * alien.velocity
+
+
+                #Check if an alien reached the ship
+                if alien.rect.bottom >= WINDOW_HEIGHT - 100:
+                    breach = True
+            
+            #Aliens reached the line
+            if breach:
+                self.breach_sound.play()
+                self.player.lives -= 1
+                self.check_game_status()
+
+
 
     def check_collision(self):
         """Check for collisions"""
