@@ -109,13 +109,35 @@ class Player(pygame.sprite.Sprite):
 class Alien(pygame.sprite.Sprite):
     """A class to model an enemy Alien"""
 
-    def __init__(self):
+    def __init__(self, x, y, velocity, bullet_group):
         """Initialize the alien"""
-        pass
+        super().__init__()
+        #Load image
+        self.image = pygame.image.load(join("Assets", "alien.png")).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
 
+        #Starting positions
+        self.starting_x = x
+        self.starting_y = y
+
+        self.direction = 1
+        self.velocity = velocity
+
+        self.bullet_group = bullet_group
+
+        self.shoot_sound = pygame.mixer.Sound(join("Assets", 'alien_fire.wav'))
+        self.shoot_sound.set_volume(.25)
+        
     def update(self):
         """Update the alien"""
-        pass
+        self.rect.x += self.direction * self.velocity
+
+        #Randomly fire a bullet
+        if random.randint(0, 1000) > 999 and len(self.bullet_group) < 3:
+            self.shoot_sound.play()
+            self.fire()
+
 
     def fire(self):
         """Fire a bullet"""
@@ -123,7 +145,8 @@ class Alien(pygame.sprite.Sprite):
 
     def reset(self):
         """Reset the aliens position"""
-        pass
+        self.rect.topleft = (self.starting_x, self.starting_y)
+        self.direction = 1
 
 class PlayerBullet(pygame.sprite.Sprite):
     """A class to model a bullet fired by the player"""
