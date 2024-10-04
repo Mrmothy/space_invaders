@@ -1,4 +1,5 @@
 import pygame, random
+from os.path import join
 
 
 #Initialize pygame
@@ -62,13 +63,34 @@ class Game:
 class Player(pygame.sprite.Sprite):
     """A class to model a space ship the user can control"""
 
-    def __init__(self):
+    def __init__(self, bullet_group):
         """Initialize the player"""
-        pass
+        super().__init__()
+        #Set the player image
+        self.image = pygame.image.load(join("Assets","player_ship.png")).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.centerx = WINDOW_WIDTH / 2
+        self.rect.bottom = WINDWO_HEIGHT
+
+        #Set Player Values
+        self.lives = 5
+        self.velocity = 8
+
+        self.bullet_group = bullet_group
+
+        #Set Shoot Sound
+        self.shoot_sound = pygame.mixer.Sound(join("Assets", "player_fire.wav"))
 
     def update(self):
         """Update the player"""
-        pass
+        keys = pygame.key.get_pressed()
+
+        #Move the player within the bounds of the screen
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.velocity
+        if keys[pygame.K_RIGHT] and self.rect.right < WINDOW_WIDTH:
+            self.rect.x += self.velocity
+        
 
     def fire(self):
         """Fire a bullet"""
@@ -76,7 +98,7 @@ class Player(pygame.sprite.Sprite):
 
     def reset(self):
         """Reset the players position"""
-        pass
+        self.rect.centerx = WINDOW_WIDTH / 2
 
 class Alien(pygame.sprite.Sprite):
     """A class to model an enemy Alien"""
@@ -119,6 +141,22 @@ class AlienBullet(pygame.sprite.Sprite):
         """Update the bullet"""
         pass
 
+#Creates Bullet groups
+my_player_bullet_group = pygame.sprite.Group()
+my_alien_bullet_group = pygame.sprite.Group()
+
+#Create a player group
+my_player_group = pygame.sprite.Group()
+my_player = Player(my_player_bullet_group)
+my_player_group.add(my_player)
+
+#Create an Alien Group. Will add alien object via the game's start new round method
+my_alien_group = pygame.sprite.Group()
+
+#Create a Game object
+my_game = Game()
+
+
 
 #Main game loop
 running = True
@@ -127,6 +165,26 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    #Fill Display
+    display_surface.fill((0, 0, 0))
+
+    #Update and display all sprite groups
+    my_player_group.update()
+    my_player_group.draw(display_surface)
+
+    my_alien_group.update()
+    my_alien_group.draw(display_surface)
+
+    my_player_bullet_group.update()
+    my_player_bullet_group.draw(display_surface)
+
+    my_alien_bullet_group.update()
+    my_alien_bullet_group.draw(display_surface)
+
+    #Update and draw game object
+    my_game.update()
+    my_game.draw()
 
     #Update display and tick clock
     pygame.display.update()
