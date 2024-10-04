@@ -7,8 +7,8 @@ pygame.init()
 
 #Set display surface
 WINDOW_WIDTH = 1200
-WINDWO_HEIGHT = 700
-display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDWO_HEIGHT))
+WINDOW_HEIGHT = 700
+display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Space invaders")
 
 #Set FPS and clock
@@ -70,7 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(join("Assets","player_ship.png")).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.centerx = WINDOW_WIDTH / 2
-        self.rect.bottom = WINDWO_HEIGHT
+        self.rect.bottom = WINDOW_HEIGHT
 
         #Set Player Values
         self.lives = 5
@@ -141,7 +141,7 @@ class Alien(pygame.sprite.Sprite):
 
     def fire(self):
         """Fire a bullet"""
-        pass
+        AlienBullet(self.rect.centerx, self.rect.bottom, self.bullet_group)
 
     def reset(self):
         """Reset the aliens position"""
@@ -174,13 +174,28 @@ class PlayerBullet(pygame.sprite.Sprite):
 class AlienBullet(pygame.sprite.Sprite):
     """A class to model a bullet fired by the alien"""
 
-    def __init__(self):
+    def __init__(self, x, y, bullet_group):
         """Initialize the bullet"""
-        pass
+        super().__init__()
+
+        self.image = pygame.image.load(join("Assets", "red_laser.png")).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+        self.velocity = 10
+
+        self.bullet_group = bullet_group
+        bullet_group.add(self)
+
 
     def update(self):
         """Update the bullet"""
-        pass
+        self.rect.y += self.velocity
+
+        #If the bullet is off screen kill it
+        if self.rect.top > WINDOW_HEIGHT:
+            self.kill()
 
 #Creates Bullet groups
 my_player_bullet_group = pygame.sprite.Group()
@@ -193,6 +208,11 @@ my_player_group.add(my_player)
 
 #Create an Alien Group. Will add alien object via the game's start new round method
 my_alien_group = pygame.sprite.Group()
+
+#!Test aliens .... Will delete later
+for i in range(10):
+    alien = Alien(64 + i*64, 100, 3, my_alien_bullet_group)
+    my_alien_group.add(alien)
 
 #Create a Game object
 my_game = Game()
