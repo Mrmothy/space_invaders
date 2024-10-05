@@ -207,7 +207,6 @@ class Game:
         #Start a new round
         self.start_new_round()
 
-
 class Player(pygame.sprite.Sprite): #! updated laser amount from 3 to 5
     """A class to model a space ship the user can control"""
 
